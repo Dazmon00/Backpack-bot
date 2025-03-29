@@ -10,14 +10,35 @@
 - 支持自定义投资金额
 - 自动计算买入和卖出数量
 - 详细的日志记录
-- 支持 Windows 一键启动
+- 支持 Windows 和 Linux 一键启动
 
-## 下载和使用
+## 快速安装
+
+### Windows 安装
+
+#### 方法一：一键安装（推荐）
+
+1. 打开命令提示符（CMD）
+2. 复制并运行以下命令：
+```bash
+powershell -Command "& {Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Dazmon00/Backpack-bot/main/install.cmd' -OutFile 'install.cmd'}"; .\install.cmd
+```
+
+这个命令会自动：
+- 下载并安装必要的软件（Python、Git等）
+- 创建项目目录
+- 下载最新代码
+- 设置虚拟环境
+- 安装依赖包
+- 创建配置文件
+- 创建桌面快捷方式
+
+#### 方法二：手动安装
 
 1. 下载项目文件：
    ```bash
-   git clone https://github.com/你的用户名/backpack-grid-bot.git
-   cd backpack-grid-bot
+   git clone https://github.com/Dazmon00/Backpack-bot.git
+   cd Backpack-bot
    ```
 
 2. 运行启动脚本：
@@ -28,13 +49,52 @@
      - 安装必要的包
      - 创建 `.env` 配置文件模板
 
+### Linux 安装
+
+#### 方法一：一键安装（推荐）
+
+1. 打开终端
+2. 复制并运行以下命令：
+```bash
+curl -s https://raw.githubusercontent.com/Dazmon00/Backpack-bot/main/install.sh | bash
+```
+
+或者：
+```bash
+wget -qO- https://raw.githubusercontent.com/Dazmon00/Backpack-bot/main/install.sh | bash
+```
+
+这个命令会自动：
+- 安装必要的软件（Python、Git等）
+- 创建项目目录
+- 下载最新代码
+- 设置虚拟环境
+- 安装依赖包
+- 创建配置文件
+- 创建桌面快捷方式
+
+#### 方法二：手动安装
+
+1. 下载项目文件：
+   ```bash
+   git clone https://github.com/Dazmon00/Backpack-bot.git
+   cd Backpack-bot
+   ```
+
+2. 运行安装脚本：
+   ```bash
+   chmod +x install.sh
+   ./install.sh
+   ```
+
 3. 配置 `.env` 文件：
    - 打开 `.env` 文件
    - 填入你的 Backpack API 密钥
    - 根据需要调整其他参数
 
 4. 启动机器人：
-   - 保存 `.env` 文件后，机器人会自动启动
+   - 双击桌面上的"Backpack Grid Bot"图标
+   - 或者在终端中运行 `./start_bot.sh`
    - 查看控制台输出的日志信息
 
 ## 配置文件说明
@@ -74,6 +134,11 @@ LOG_LEVEL=INFO
 - `backpack_exchange.py`: Backpack 交易所接口
 - `grid_bot.py`: 网格交易逻辑
 - `start_bot.bat`: Windows 启动脚本
+- `start_bot.sh`: Linux 启动脚本
+- `install.bat`: Windows 安装脚本
+- `install.sh`: Linux 安装脚本
+- `download.bat`: 下载脚本
+- `install.cmd`: 一键安装命令
 - `requirements.txt`: Python 包依赖
 - `.env`: 配置文件（需要自行创建）
 - `logs/`: 日志文件目录
@@ -84,7 +149,8 @@ LOG_LEVEL=INFO
 - 初始版本发布
 - 支持 ETH/USDC 现货网格交易
 - 自动环境配置
-- Windows 一键启动
+- Windows 和 Linux 一键启动
+- 支持一键安装功能
 
 ## 许可证
 

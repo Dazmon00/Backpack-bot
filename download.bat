@@ -7,7 +7,7 @@ echo ====================================
 echo.
 
 :: 设置GitHub仓库地址
-set "REPO_URL=https://raw.githubusercontent.com/你的用户名/backpack-grid-bot/main"
+set "REPO_URL=https://raw.githubusercontent.com/Dazmon00/Backpack-bot/main"
 
 :: 创建临时目录
 set "TEMP_DIR=%TEMP%\backpack-grid-bot-install"
