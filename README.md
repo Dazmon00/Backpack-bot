@@ -10,91 +10,37 @@
 - 支持自定义投资金额
 - 自动计算买入和卖出数量
 - 详细的日志记录
-- 支持 Windows 和 Linux 一键启动
+- 支持 Windows 和 Linux 运行
 
 ## 快速安装
 
-### Windows 安装
-
-#### 方法一：一键安装（推荐）
-
-1. 右键点击 PowerShell，选择"以管理员身份运行"
-2. 复制并运行以下命令：
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Dazmon00/Backpack-bot/main/install.ps1'))
-```
-
-这个命令会自动：
-- 检查并安装必要的软件（Python、Git等）
-- 创建项目目录
-- 下载最新代码
-- 设置虚拟环境
-- 安装依赖包
-- 创建配置文件
-- 创建桌面快捷方式
-
-#### 方法二：手动安装
+### 下载和安装
 
 1. 下载项目文件：
-   ```bash
-   git clone https://github.com/Dazmon00/Backpack-bot.git
-   cd Backpack-bot
-   ```
+   - 访问 [GitHub 发布页面](https://github.com/Dazmon00/Backpack-bot/releases)
+   - 下载最新版本的 `Backpack-bot.zip`
+   - 或者直接下载：[Backpack-bot.zip](https://github.com/Dazmon00/Backpack-bot/archive/refs/heads/main.zip)
 
-2. 运行启动脚本：
-   - 双击运行 `start_bot.bat`
+2. 解压文件：
+   - 将下载的 `Backpack-bot.zip` 解压到任意目录
+   - 进入解压后的 `Backpack-bot` 目录
+
+3. 运行启动脚本：
+   - Windows: 双击运行 `start_bot.bat`
+   - Linux: 在终端中运行 `./start_bot.sh`
    - 首次运行时会自动：
      - 下载并安装 Python（如果需要）
      - 创建虚拟环境
      - 安装必要的包
      - 创建 `.env` 配置文件模板
 
-### Linux 安装
-
-#### 方法一：一键安装（推荐）
-
-1. 打开终端
-2. 复制并运行以下命令：
-```bash
-curl -s https://raw.githubusercontent.com/Dazmon00/Backpack-bot/main/install.sh | bash
-```
-
-或者：
-```bash
-wget -qO- https://raw.githubusercontent.com/Dazmon00/Backpack-bot/main/install.sh | bash
-```
-
-这个命令会自动：
-- 安装必要的软件（Python、Git等）
-- 创建项目目录
-- 下载最新代码
-- 设置虚拟环境
-- 安装依赖包
-- 创建配置文件
-- 创建桌面快捷方式
-
-#### 方法二：手动安装
-
-1. 下载项目文件：
-   ```bash
-   git clone https://github.com/Dazmon00/Backpack-bot.git
-   cd Backpack-bot
-   ```
-
-2. 运行安装脚本：
-   ```bash
-   chmod +x install.sh
-   ./install.sh
-   ```
-
-3. 配置 `.env` 文件：
+4. 配置 `.env` 文件：
    - 打开 `.env` 文件
    - 填入你的 Backpack API 密钥
    - 根据需要调整其他参数
 
-4. 启动机器人：
-   - 双击桌面上的"Backpack Grid Bot"图标
-   - 或者在终端中运行 `./start_bot.sh`
+5. 启动机器人：
+   - 保存 `.env` 文件后，机器人会自动启动
    - 查看控制台输出的日志信息
 
 ## 配置文件说明
@@ -122,7 +68,7 @@ LOG_LEVEL=INFO
 
 ## 注意事项
 
-1. 首次运行需要管理员权限（用于安装 Python）
+1. 确保已安装 Python 3.8 或更高版本
 2. 确保网络连接正常
 3. 请妥善保管 API 密钥
 4. 建议先用小额资金测试
@@ -135,8 +81,6 @@ LOG_LEVEL=INFO
 - `grid_bot.py`: 网格交易逻辑
 - `start_bot.bat`: Windows 启动脚本
 - `start_bot.sh`: Linux 启动脚本
-- `install.ps1`: Windows PowerShell 安装脚本
-- `install.sh`: Linux 安装脚本
 - `requirements.txt`: Python 包依赖
 - `.env`: 配置文件（需要自行创建）
 - `logs/`: 日志文件目录
@@ -147,8 +91,7 @@ LOG_LEVEL=INFO
 - 初始版本发布
 - 支持 ETH/USDC 现货网格交易
 - 自动环境配置
-- Windows 和 Linux 一键启动
-- 支持一键安装功能
+- 支持 Windows 和 Linux 运行
 
 ## 许可证
 
