@@ -9,27 +9,10 @@ echo.
 :: 检查是否已安装 Python
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo Python未安装，正在检查是否已下载安装程序...
-    
-    :: 检查是否已下载 Python 安装程序
-    if not exist "python-3.11.8-amd64.exe" (
-        echo 正在下载Python安装程序...
-        powershell -Command "& {Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.8/python-3.11.8-amd64.exe' -OutFile 'python-3.11.8-amd64.exe'}"
-    )
-    
-    echo 正在安装Python...
-    start /wait python-3.11.8-amd64.exe /quiet InstallAllUsers=1 PrependPath=1
-    
-    :: 刷新环境变量
-    call RefreshEnv.cmd
-    
-    :: 验证安装
-    python --version >nul 2>&1
-    if %errorlevel% neq 0 (
-        echo Python安装失败，请手动安装Python 3.11.8
-        pause
-        exit /b 1
-    )
+    echo Python未安装，请先安装Python 3.8或更高版本
+    echo 您可以从 https://www.python.org/downloads/ 下载Python
+    pause
+    exit /b 1
 )
 
 :: 检查是否已安装虚拟环境
@@ -44,15 +27,36 @@ if %errorlevel% neq 0 (
 if not exist "venv" (
     echo 正在创建虚拟环境...
     python -m venv venv
+    if %errorlevel% neq 0 (
+        echo 创建虚拟环境失败
+        pause
+        exit /b 1
+    )
 )
 
 :: 激活虚拟环境
 call venv\Scripts\activate.bat
+if %errorlevel% neq 0 (
+    echo 激活虚拟环境失败
+    pause
+    exit /b 1
+)
 
 :: 检查是否已安装依赖
 echo 正在检查并安装依赖...
 python -m pip install --upgrade pip
+if %errorlevel% neq 0 (
+    echo 更新pip失败
+    pause
+    exit /b 1
+)
+
 pip install -r requirements.txt
+if %errorlevel% neq 0 (
+    echo 安装依赖失败
+    pause
+    exit /b 1
+)
 
 :: 检查是否存在 .env 文件
 if not exist ".env" (
@@ -92,4 +96,6 @@ if %errorlevel% neq 0 (
 )
 
 :: 退出虚拟环境
-deactivate 
+deactivate
+
+pause 
