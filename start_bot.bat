@@ -8,12 +8,39 @@ echo.
 
 :: Check Python installation
 echo Checking Python installation...
-python --version
+python --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo Python is not installed. Please install Python 3.8 or higher
-    echo You can download Python from https://www.python.org/downloads/
-    pause
-    exit /b 1
+    echo Python is not installed. Starting installation process...
+    
+    :: Create temporary directory for download
+    mkdir temp 2>nul
+    
+    :: Download Python installer
+    echo Downloading Python installer...
+    powershell -Command "& {Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.8/python-3.11.8-amd64.exe' -OutFile 'temp\python-installer.exe'}"
+    if %errorlevel% neq 0 (
+        echo Failed to download Python installer
+        echo Please download Python manually from https://www.python.org/downloads/
+        pause
+        exit /b 1
+    )
+    
+    :: Install Python
+    echo Installing Python...
+    start /wait temp\python-installer.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
+    
+    :: Clean up
+    rmdir /s /q temp
+    
+    :: Verify installation
+    python --version >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo Python installation failed
+        echo Please install Python manually from https://www.python.org/downloads/
+        pause
+        exit /b 1
+    )
+    echo Python installed successfully
 )
 echo Python check completed
 pause
