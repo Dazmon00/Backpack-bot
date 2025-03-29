@@ -18,14 +18,14 @@
 
 #### 方法一：一键安装（推荐）
 
-1. 打开命令提示符（CMD）
+1. 右键点击 PowerShell，选择"以管理员身份运行"
 2. 复制并运行以下命令：
-```bash
-powershell -Command "& {Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Dazmon00/Backpack-bot/main/install.cmd' -OutFile 'install.cmd'}"; .\install.cmd
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Dazmon00/Backpack-bot/main/install.ps1'))
 ```
 
 这个命令会自动：
-- 下载并安装必要的软件（Python、Git等）
+- 检查并安装必要的软件（Python、Git等）
 - 创建项目目录
 - 下载最新代码
 - 设置虚拟环境
@@ -135,10 +135,8 @@ LOG_LEVEL=INFO
 - `grid_bot.py`: 网格交易逻辑
 - `start_bot.bat`: Windows 启动脚本
 - `start_bot.sh`: Linux 启动脚本
-- `install.bat`: Windows 安装脚本
+- `install.ps1`: Windows PowerShell 安装脚本
 - `install.sh`: Linux 安装脚本
-- `download.bat`: 下载脚本
-- `install.cmd`: 一键安装命令
 - `requirements.txt`: Python 包依赖
 - `.env`: 配置文件（需要自行创建）
 - `logs/`: 日志文件目录
