@@ -8,15 +8,19 @@ echo ====================================
 echo.
 
 :: 检查是否已安装 Python
-python --version >nul 2>&1
+echo 正在检查Python安装...
+python --version
 if %errorlevel% neq 0 (
     echo Python未安装，请先安装Python 3.8或更高版本
     echo 您可以从 https://www.python.org/downloads/ 下载Python
     pause
     exit /b 1
 )
+echo Python检查完成
+pause
 
 :: 检查是否存在虚拟环境
+echo 正在检查虚拟环境...
 if not exist "venv" (
     echo 正在创建虚拟环境...
     python -m venv venv
@@ -25,15 +29,32 @@ if not exist "venv" (
         pause
         exit /b 1
     )
+    echo 虚拟环境创建成功
 )
+echo 虚拟环境检查完成
+pause
 
 :: 激活虚拟环境
+echo 正在激活虚拟环境...
 call venv\Scripts\activate.bat
 if %errorlevel% neq 0 (
     echo 激活虚拟环境失败
     pause
     exit /b 1
 )
+echo 虚拟环境激活成功
+pause
+
+:: 检查是否存在 requirements.txt
+echo 正在检查依赖文件...
+if not exist "requirements.txt" (
+    echo 未找到requirements.txt文件
+    echo 请确保在正确的目录下运行此脚本
+    pause
+    exit /b 1
+)
+echo 依赖文件检查完成
+pause
 
 :: 安装依赖
 echo 正在安装依赖...
@@ -43,8 +64,11 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
+echo 依赖安装完成
+pause
 
 :: 检查是否存在 .env 文件
+echo 正在检查配置文件...
 if not exist ".env" (
     echo 未找到.env文件，正在创建模板...
     echo # Backpack API配置 > .env
@@ -68,6 +92,19 @@ if not exist ".env" (
     notepad .env
     pause
 )
+echo 配置文件检查完成
+pause
+
+:: 检查是否存在 main.py
+echo 正在检查主程序文件...
+if not exist "main.py" (
+    echo 未找到main.py文件
+    echo 请确保在正确的目录下运行此脚本
+    pause
+    exit /b 1
+)
+echo 主程序文件检查完成
+pause
 
 :: 启动机器人
 echo 正在启动网格交易机器人...
@@ -82,4 +119,5 @@ if %errorlevel% neq 0 (
 :: 退出虚拟环境
 deactivate
 
+echo 程序执行完成
 pause 
