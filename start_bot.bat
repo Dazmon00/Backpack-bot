@@ -26,19 +26,38 @@ if %errorlevel% neq 0 (
         exit /b 1
     )
     
+    :: Check if installer exists
+    if not exist "temp\python-installer.exe" (
+        echo Python installer not found
+        echo Please download Python manually from https://www.python.org/downloads/
+        echo After downloading, please run this script again
+        pause
+        exit /b 1
+    )
+    
     :: Install Python
     echo Installing Python...
-    start /wait temp\python-installer.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
+    echo This may take a few minutes. Please wait...
+    
+    :: Run installer with admin privileges
+    powershell -Command "Start-Process -FilePath 'temp\python-installer.exe' -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1 Include_test=0' -Verb RunAs -Wait"
+    
+    :: Wait for installation to complete
+    timeout /t 30 /nobreak
     
     :: Clean up
     rmdir /s /q temp
     
     :: Verify installation
+    echo Verifying Python installation...
     python --version >nul 2>&1
     if %errorlevel% neq 0 (
         echo Python installation failed
-        echo Please install Python manually from https://www.python.org/downloads/
-        echo After installing, please run this script again
+        echo Please try these steps:
+        echo 1. Download Python from https://www.python.org/downloads/
+        echo 2. Run the installer manually
+        echo 3. Make sure to check "Add Python to PATH" during installation
+        echo 4. Run this script again after installation
         pause
         exit /b 1
     )
