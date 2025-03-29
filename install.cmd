@@ -1,0 +1,1 @@
+@powershell -Command "& {Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/你的用户名/backpack-grid-bot/main/download.bat' -OutFile 'download.bat'}"; .\download.bat 

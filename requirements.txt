@@ -1,0 +1,4 @@
+ccxt==4.1.13
+python-dotenv==1.0.0
+loguru==0.7.2
+requests==2.31.0 
