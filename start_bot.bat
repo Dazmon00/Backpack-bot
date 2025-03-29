@@ -17,10 +17,11 @@ if %errorlevel% neq 0 (
     
     :: Download Python installer
     echo Downloading Python installer...
-    powershell -Command "& {Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.8/python-3.11.8-amd64.exe' -OutFile 'temp\python-installer.exe'}"
+    curl -L -o temp\python-installer.exe https://www.python.org/ftp/python/3.11.8/python-3.11.8-amd64.exe
     if %errorlevel% neq 0 (
         echo Failed to download Python installer
         echo Please download Python manually from https://www.python.org/downloads/
+        echo After downloading, please run this script again
         pause
         exit /b 1
     )
@@ -37,6 +38,7 @@ if %errorlevel% neq 0 (
     if %errorlevel% neq 0 (
         echo Python installation failed
         echo Please install Python manually from https://www.python.org/downloads/
+        echo After installing, please run this script again
         pause
         exit /b 1
     )
