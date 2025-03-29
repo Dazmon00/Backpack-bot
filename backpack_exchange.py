@@ -10,7 +10,20 @@ import base64
 import nacl.signing
 import json
 
+# 配置日志
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  # 设置日志级别为DEBUG
+
+# 创建控制台处理器
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+
+# 创建格式化器
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+
+# 添加处理器到日志记录器
+logger.addHandler(console_handler)
 
 class BackpackExchange(ccxt.Exchange):
     def __init__(self, config: Dict):
@@ -67,7 +80,16 @@ class BackpackExchange(ccxt.Exchange):
         if params:
             # 对参数进行排序
             sorted_params = sorted(params.items(), key=lambda x: x[0])
-            query_string = "&".join([f"{k}={v}" for k, v in sorted_params])
+            # 构建查询字符串，处理列表类型的参数
+            query_parts = []
+            for k, v in sorted_params:
+                if isinstance(v, list):
+                    # 对于列表类型的参数，将每个元素单独添加
+                    for item in v:
+                        query_parts.append(f"{k}={item}")
+                else:
+                    query_parts.append(f"{k}={v}")
+            query_string = "&".join(query_parts)
             signature_parts.append(query_string)
         
         # 添加时间戳和窗口
@@ -125,7 +147,16 @@ class BackpackExchange(ccxt.Exchange):
             # 构建完整URL
             url = f"{self.baseUrl}{path}"
             if params:
-                query_string = '&'.join([f"{k}={v}" for k, v in sorted(params.items())])
+                # 处理列表类型的参数
+                query_parts = []
+                for k, v in sorted(params.items()):
+                    if isinstance(v, list):
+                        # 对于列表类型的参数，将每个元素单独添加
+                        for item in v:
+                            query_parts.append(f"{k}={item}")
+                    else:
+                        query_parts.append(f"{k}={v}")
+                query_string = '&'.join(query_parts)
                 url = f"{url}?{query_string}"
             
             # 记录请求信息
@@ -307,17 +338,34 @@ class BackpackExchange(ccxt.Exchange):
         response = self._request('POST', path, data=order_data, instruction='orderExecute')
         return self._parse_order(response)
 
-    def cancel_order(self, order_id: str, symbol: str, is_futures: bool = False) -> Dict:
-        """取消现有订单"""
-        # 根据交易类型选择不同的API路径
-        if is_futures:
-            path = f'/api/v1/futures/order/{order_id}'
-        else:
-            path = f'/api/v1/order/{order_id}'
+    def cancel_order(self, order_id: str, symbol: str) -> Dict:
+        """
+        取消订单
+        :param order_id: 订单ID
+        :param symbol: 交易对
+        :return: 订单信息
+        """
+        try:
+            # 准备请求体数据
+            data = {
+                'orderId': order_id,
+                'symbol': symbol
+            }
             
-        params = {'symbol': symbol}
-        response = self._request('DELETE', path, params, instruction='orderCancel')
-        return self._parse_order(response)
+            # 发送取消订单请求
+            response = self._request('DELETE', '/api/v1/order', data=data, instruction='orderCancel')
+            
+            # 检查响应状态
+            if response.get('status') == 'Cancelled':
+                logger.info(f"订单 {order_id} 已成功取消")
+                return response
+            else:
+                logger.error(f"取消订单失败: {response}")
+                raise Exception(f"取消订单失败: {response}")
+                
+        except Exception as e:
+            logger.error(f"取消订单时出错: {str(e)}")
+            raise
 
     def fetch_order(self, order_id: str, symbol: str, is_futures: bool = False) -> Dict:
         """
@@ -336,6 +384,7 @@ class BackpackExchange(ccxt.Exchange):
         }
         
         # 发送请求
+        logger.info(f"获取订单信息 - {params}")
         response = self._request('GET', path, params, instruction='orderQuery')
         
         if response:
@@ -498,33 +547,6 @@ class BackpackExchange(ccxt.Exchange):
         return markets
 
     def fetch_my_trades(self, symbol: str, since: Optional[int] = None, limit: Optional[int] = None, params: Dict = {}) -> List[Dict]:
-        """
-        获取用户成交历史
-        :param symbol: 交易对
-        :param since: 开始时间戳（毫秒）
-        :param limit: 返回记录数量限制，默认100，最大1000
-        :param params: 额外参数，支持：
-            - orderId: 按订单ID过滤
-            - to: 结束时间戳（毫秒）
-            - offset: 偏移量，默认0
-            - fillType: 成交类型，可选值：
-                - "User": 用户成交
-                - "BookLiquidation": 强平成交
-                - "Adl": ADL成交
-                - "Backstop": 后备成交
-                - "Liquidation": 清算成交
-                - "AllLiquidation": 所有清算成交
-                - "CollateralConversion": 抵押品转换
-                - "CollateralConversionAndSpotLiquidation": 抵押品转换和现货清算
-            - marketType: 市场类型数组，可选值：
-                - "SPOT": 现货
-                - "PERP": 永续合约
-                - "IPERP": 反向永续合约
-                - "DATED": 交割合约
-                - "PREDICTION": 预测市场
-                - "RFQ": 询价
-        :return: 成交记录列表
-        """
         path = '/wapi/v1/history/fills'
         
         # 构建查询参数
