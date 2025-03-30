@@ -56,7 +56,21 @@ CHECK_INTERVAL=60  # 检查间隔(秒)
 LOG_LEVEL=INFO  # 日志级别：DEBUG, INFO, WARNING, ERROR, CRITICAL
 ```
 
-## 使用说明
+## 使用说明，需自行安装好python
+
+### Windows 
+1. 配置环境变量：
+   - 复制 `.env.example` 为 `.env`
+   - 填写您的 API 密钥和其他配置参数
+
+2. 运行机器人：
+   - 双击 `start.bat` 文件
+   - 或在命令行中运行：
+     ```bash
+     start.bat
+     ```
+
+### Linux/Mac 
 
 1. 配置环境变量：
    - 复制 `.env.example` 为 `.env`
@@ -67,13 +81,13 @@ LOG_LEVEL=INFO  # 日志级别：DEBUG, INFO, WARNING, ERROR, CRITICAL
    python grid_trader.py
    ```
 
-3. 监控运行状态：
-   - 程序会实时显示网格信息和订单状态
-   - 可以通过日志查看详细信息
+### 监控运行状态
+- 程序会实时显示网格信息和订单状态
+- 可以通过日志查看详细信息
 
-4. 安全退出：
-   - 按 Ctrl+C 可以安全退出程序
-   - 程序会自动取消所有未完成订单
+### 安全退出
+- 按 Ctrl+C 可以安全退出程序
+- 程序会自动取消所有未完成订单
 
 ## 网格策略说明
 
@@ -108,3 +122,25 @@ LOG_LEVEL=INFO  # 日志级别：DEBUG, INFO, WARNING, ERROR, CRITICAL
 3. 如何处理程序异常退出？
    - 程序会自动取消所有未完成订单
    - 重新启动程序即可继续交易
+
+4. Windows 用户启动失败怎么办？
+   - 确保已安装 Python 3.7 或更高版本
+   - 确保已安装所有依赖包
+   - 检查 Python 是否已添加到系统环境变量
+   - 尝试在命令行中手动运行 `python grid_trader.py` 查看错误信息
+
+## 更新日志
+
+### v1.0.0
+- 初始版本发布
+- 支持基本的网格交易功能
+- 支持等差和等比网格策略
+- 添加 Windows 启动脚本
+
+## 贡献指南
+
+欢迎提交 Issue 和 Pull Request 来帮助改进这个项目。
+
+## 许可证
+
+MIT License
