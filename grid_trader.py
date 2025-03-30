@@ -373,10 +373,15 @@ class GridTrader:
     def check_and_adjust_orders(self):
         """检查并调整订单"""
         try:
-            # 获取当前价格
+            # 获取当前价格和持仓
             ticker = self.exchange.fetch_ticker(self.symbol)
             current_price = float(ticker['last'])
-
+            
+            # 获取账户余额
+            balance = self.exchange.fetch_balance()
+            base_currency, quote_currency = self.symbol.split('_')
+            base_balance = float(balance.get(base_currency, {}).get('free', 0))
+            
             # 检查是否触及止损或止盈
             if current_price <= self.stop_loss_price or current_price >= self.take_profit_price:
                 logger.warning(f"触及止损/止盈价格，停止交易: {current_price}")
@@ -397,10 +402,20 @@ class GridTrader:
                             float(order.get('filled', 0))
                         )
             
-            # 如果订单数量不足，重新布置网格
-            if len(open_orders) < self.grid_number / 2:
-                logger.info("订单数量不足，重新布置网格")
-                self.place_grid_orders()
+            # 根据基础货币余额决定是否需要调整订单
+            if base_balance == 0:
+                # 没有基础货币，计算当前价格下方可以布置的买单数量
+                possible_buy_orders = len([price for price in self.grid_prices if price < current_price])
+                buy_orders = [order for order in open_orders if order['side'] == 'Bid']
+                
+                if len(buy_orders) < possible_buy_orders:
+                    logger.info(f"{base_currency}余额为0，买单数量不足，重新布置网格。当前买单数量: {len(buy_orders)}，可布置买单数量: {possible_buy_orders}")
+                    self.place_grid_orders()
+            else:
+                # 有基础货币，检查总订单数量
+                if len(open_orders) < self.grid_number / 2:
+                    logger.info(f"订单数量不足，重新布置网格。当前订单数量: {len(open_orders)}")
+                    self.place_grid_orders()
                 
             # 打印订单汇总信息
             self.order_manager.print_order_summary()
