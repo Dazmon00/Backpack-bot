@@ -412,9 +412,21 @@ class GridTrader:
                     logger.info(f"{base_currency}余额为0，买单数量不足，重新布置网格。当前买单数量: {len(buy_orders)}，可布置买单数量: {possible_buy_orders}")
                     self.place_grid_orders()
             else:
-                # 有基础货币，检查总订单数量
-                if len(open_orders) < self.grid_number / 2:
-                    logger.info(f"订单数量不足，重新布置网格。当前订单数量: {len(open_orders)}")
+                # 有基础货币，计算可用的卖单数量（考虑手续费）
+                fee_rate = 0.003  # 0.1% 手续费率
+                available_balance = base_balance * (1 - fee_rate)  # 考虑手续费后的可用余额
+                possible_sell_orders = len([price for price in self.grid_prices if price > current_price])
+                sell_orders = [order for order in open_orders if order['side'] == 'Ask']
+                
+                # 计算每个网格需要的数量
+                grid_amount = self.get_order_amount(current_price)
+                
+                # 计算实际可以布置的卖单数量（考虑余额限制）
+                max_possible_sell_orders = int(available_balance / grid_amount)
+                actual_possible_sell_orders = min(possible_sell_orders, max_possible_sell_orders)
+                
+                if len(sell_orders) < actual_possible_sell_orders:
+                    logger.info(f"卖单数量不足，重新布置网格。当前卖单数量: {len(sell_orders)}，可布置卖单数量: {actual_possible_sell_orders}，可用余额: {available_balance:.3f} {base_currency}")
                     self.place_grid_orders()
                 
             # 打印订单汇总信息
