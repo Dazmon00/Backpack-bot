@@ -1,0 +1,35 @@
+{
+    "apiKey": "u44C54rFU9mU8SiksZCf3ukmwBeYYkMFqSXR0K+MI08=",
+    "secret": "hHnrrKTPQr6WLhAdEH/SZl2ecV+A6LAfxi2dzWO6qzk=",
+    "trading_pairs": [
+        {
+            "symbol": "SOL_USDC"
+        }
+    ],
+    "order_params": {
+        "symbol": null,
+        "type": "market",
+        "side": "bid",
+        "amount": 0.1,
+        "price": null,
+        "is_futures": false,
+        "client_id": null,
+        "quote_quantity": null,
+        "reduce_only": false,
+        "self_trade_prevention": "RejectTaker",
+        "time_in_force": "GTC",
+        "stop_loss_limit_price": null,
+        "stop_loss_trigger_by": null,
+        "stop_loss_trigger_price": null,
+        "take_profit_limit_price": null,
+        "take_profit_trigger_by": null,
+        "take_profit_trigger_price": null,
+        "trigger_by": null,
+        "trigger_price": null,
+        "trigger_quantity": null,
+        "auto_lend": false,
+        "auto_lend_redeem": false,
+        "auto_borrow": false,
+        "auto_borrow_repay": false
+    }
+} 

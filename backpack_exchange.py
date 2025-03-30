@@ -176,7 +176,6 @@ class BackpackExchange(ccxt.Exchange):
                 json=data,
                 verify=True
             )
-            
             # 记录响应信息
             logger.debug(f"响应状态码: {response.status_code}")
             logger.debug(f"响应头: {response.headers}")
@@ -269,8 +268,6 @@ class BackpackExchange(ccxt.Exchange):
         else:
             path = '/api/v1/order'
             
-        # 格式化数量，避免科学计数法
-        amount_str = f"{amount:.6f}".rstrip('0').rstrip('.')
             
         # 生成唯一的 clientId (确保在 uint32 范围内)
         if client_id is None:
@@ -280,15 +277,18 @@ class BackpackExchange(ccxt.Exchange):
         # 准备请求体数据
         order_data = {
             'symbol': symbol,
-            'side': 'Ask' if side.upper() == 'SELL' else 'Bid',
+            'side': 'Ask' if side == 'Ask' else 'Bid',
             'orderType': type.capitalize(),  # Market 或 Limit
-            'quantity': amount_str,  # 使用格式化后的数量
+            'quantity': amount,  # 使用格式化后的数量
             'timeInForce': time_in_force,
-            'postOnly': post_only,
             'reduceOnly': reduce_only,
             'selfTradePrevention': self_trade_prevention,
             'clientId': client_id
         }
+        
+        # 只在限价单时添加 postOnly 参数
+        if type.lower() == 'limit' and post_only:
+            order_data['postOnly'] = post_only
         
         # 添加可选参数
         if price:
@@ -333,7 +333,7 @@ class BackpackExchange(ccxt.Exchange):
                 order_data['autoBorrowRepay'] = auto_borrow_repay
         
         # 记录订单数据
-        logger.debug(f"创建订单数据: {order_data}")
+        logger.info(f"创建订单数据: {order_data}")
         
         response = self._request('POST', path, data=order_data, instruction='orderExecute')
         return self._parse_order(response)
@@ -357,10 +357,8 @@ class BackpackExchange(ccxt.Exchange):
             
             # 检查响应状态
             if response.get('status') == 'Cancelled':
-                logger.info(f"订单 {order_id} 已成功取消")
                 return response
             else:
-                logger.error(f"取消订单失败: {response}")
                 raise Exception(f"取消订单失败: {response}")
                 
         except Exception as e:
@@ -450,7 +448,6 @@ class BackpackExchange(ccxt.Exchange):
                     'total': float(balance_info.get('available', 0)) + float(balance_info.get('locked', 0))
                 }
             
-            logger.info(f"账户余额: {balances}")
             return balances
             
         except Exception as e:
@@ -460,9 +457,6 @@ class BackpackExchange(ccxt.Exchange):
     def _parse_ticker(self, response: Dict) -> Dict:
         """解析行情响应"""
         # 打印原始响应数据以便调试
-        logger.info(f"原始行情数据: {response}")
-        
-        # 根据实际 API 响应格式解析数据
         return {
             'symbol': response['symbol'],
             'last': float(response.get('lastPrice', 0)),
@@ -482,7 +476,7 @@ class BackpackExchange(ccxt.Exchange):
         """
         try:
             return {
-                'id': order.get('id'),  # 使用 'id' 而不是 'orderId'
+                'id': order.get('id'),
                 'clientId': order.get('clientId'),
                 'symbol': order.get('symbol'),
                 'side': order.get('side'),
@@ -493,16 +487,16 @@ class BackpackExchange(ccxt.Exchange):
                 'cost': float(order.get('executedQuoteQuantity', 0)),
                 'status': order.get('status'),
                 'timeInForce': order.get('timeInForce'),
-                'postOnly': order.get('postOnly', False),
                 'reduceOnly': order.get('reduceOnly', False),
+                'selfTradePrevention': order.get('selfTradePrevention'),
                 'createdAt': order.get('createdAt'),
                 'triggeredAt': order.get('triggeredAt'),
+                'stopLossTriggerPrice': order.get('stopLossTriggerPrice'),
                 'stopLossLimitPrice': order.get('stopLossLimitPrice'),
                 'stopLossTriggerBy': order.get('stopLossTriggerBy'),
-                'stopLossTriggerPrice': order.get('stopLossTriggerPrice'),
+                'takeProfitTriggerPrice': order.get('takeProfitTriggerPrice'),
                 'takeProfitLimitPrice': order.get('takeProfitLimitPrice'),
                 'takeProfitTriggerBy': order.get('takeProfitTriggerBy'),
-                'takeProfitTriggerPrice': order.get('takeProfitTriggerPrice'),
                 'triggerBy': order.get('triggerBy'),
                 'triggerPrice': order.get('triggerPrice'),
                 'triggerQuantity': order.get('triggerQuantity'),
@@ -576,6 +570,7 @@ class BackpackExchange(ccxt.Exchange):
             query_params['marketType'] = params['marketType']
             
         # 发送请求
+        logger.info(f"获取成交历史 - {query_params}")
         response = self._request('GET', path, query_params, instruction='fillHistoryQueryAll')
         
         # 解析成交记录
@@ -612,4 +607,39 @@ class BackpackExchange(ccxt.Exchange):
             }
             trades.append(parsed_trade)
             
-        return trades 
+        return trades
+
+    def fetch_open_orders(self, symbol: str, since: Optional[int] = None, limit: Optional[int] = None, params: Dict = {}) -> List[Dict]:
+        """
+        获取未完成订单列表
+        :param symbol: 交易对
+        :param since: 开始时间戳
+        :param limit: 返回订单数量限制
+        :param params: 额外参数
+        :return: 未完成订单列表
+        """
+        path = '/api/v1/orders'
+        
+        # 构建查询参数
+        query_params = {
+            'symbol': symbol,
+            'marketType': 'SPOT',  # 默认为现货市场
+            **params
+        }
+        
+        # 添加分页参数
+        if limit is not None:
+            query_params['limit'] = min(limit, 1000)  # 限制最大值为1000
+        if 'offset' in params:
+            query_params['offset'] = params['offset']
+            
+        # 发送请求
+        response = self._request('GET', path, query_params, instruction='orderQueryAll')
+        
+        # 解析订单列表
+        orders = []
+        for order in response:
+            parsed_order = self._parse_order(order)
+            orders.append(parsed_order)
+            
+        return orders 

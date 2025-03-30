@@ -1,1 +1,0 @@
-@powershell -Command "& {Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Dazmon00/Backpack-bot/main/download.bat' -OutFile 'download.bat'}"; .\download.bat 

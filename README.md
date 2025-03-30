@@ -1,98 +1,110 @@
 # Backpack Grid Trading Bot
 
-这是一个用于 Backpack 交易所的网格交易机器人，支持 ETH/USDC 现货交易。
+这是一个基于 Backpack Exchange 的网格交易机器人，支持等差和等比网格策略，具有自动下单、止盈止损等功能。
 
 ## 功能特点
 
-- 自动检测并安装 Python 环境
-- 自动创建虚拟环境并安装依赖
-- 支持自定义价格区间和网格数量
-- 支持自定义投资金额
-- 自动计算买入和卖出数量
-- 详细的日志记录
-- 支持 Windows 和 Linux 运行
+- 支持等差和等比网格策略
+- 自动计算网格价格和订单数量
+- 实时监控订单状态
+- 支持止盈止损
+- 自动检查账户余额
+- 支持最小订单数量限制
+- 支持最大订单数量限制
+- 支持 post-only 模式
+- 支持自定义检查间隔
+- 优雅的退出机制（支持 Ctrl+C）
 
-## 快速安装
+## 环境要求
 
-### 下载和安装
+- Python 3.7+
+- pip
 
-1. 下载项目文件：
-   - 访问 [GitHub 发布页面](https://github.com/Dazmon00/Backpack-bot/releases)
-   - 下载最新版本的 `Backpack-bot.zip`
-   - 或者直接下载：[Backpack-bot.zip](https://github.com/Dazmon00/Backpack-bot/archive/refs/heads/main.zip)
+## 安装依赖
 
-2. 解压文件：
-   - 将下载的 `Backpack-bot.zip` 解压到任意目录
-   - 进入解压后的 `Backpack-bot` 目录
-
-3. 运行启动脚本：
-   - Windows: 双击运行 `start_bot.bat`
-   - Linux: 在终端中运行 `./start_bot.sh`
-   - 首次运行时会自动：
-     - 下载并安装 Python（如果需要）
-     - 创建虚拟环境
-     - 安装必要的包
-     - 创建 `.env` 配置文件模板
-
-4. 配置 `.env` 文件：
-   - 打开 `.env` 文件
-   - 填入你的 Backpack API 密钥
-   - 根据需要调整其他参数
-
-5. 启动机器人：
-   - 保存 `.env` 文件后，机器人会自动启动
-   - 查看控制台输出的日志信息
-
-## 配置文件说明
-
-在 `.env` 文件中配置以下参数：
-
-```env
-# Backpack API配置
-BACKPACK_API_KEY=你的API密钥
-BACKPACK_API_SECRET=你的API密钥
-
-# ETH现货交易配置
-ETH_SPOT_ENABLED=true
-ETH_SPOT_SYMBOL=ETH_USDC
-ETH_SPOT_LOWER_PRICE=1400    # 最低价格
-ETH_SPOT_UPPER_PRICE=2500    # 最高价格
-ETH_SPOT_GRID_NUMBER=30      # 网格数量
-ETH_SPOT_TOTAL_INVESTMENT=1000  # 总投资金额(USDC)
-ETH_SPOT_CHECK_INTERVAL=10   # 检查间隔(秒)
-ETH_SPOT_MIN_PROFIT=0.5      # 最小利润百分比
-
-# 日志配置
-LOG_LEVEL=INFO
+```bash
+pip install -r requirements.txt
 ```
 
-## 注意事项
+## 配置说明
 
-1. 确保已安装 Python 3.8 或更高版本
-2. 确保网络连接正常
+在项目根目录创建 `.env` 文件，配置以下参数：
+
+```env
+# API配置
+API_KEY=your_api_key
+API_SECRET=your_api_secret
+
+# 交易配置
+SYMBOL=ETH_USDC  # 交易对
+GRID_TYPE=arithmetic  # 网格类型：arithmetic(等差) 或 geometric(等比)
+UPPER_PRICE=2000  # 网格上限价格
+LOWER_PRICE=1800  # 网格下限价格
+GRID_NUMBER=10  # 网格数量
+INVESTMENT=1000  # 总投资金额(USDC)
+MIN_ORDER_SIZE=0.001  # 最小订单数量
+MAX_ORDERS=20  # 最大订单数量
+
+# 风险控制
+STOP_LOSS_PRICE=1700  # 止损价格
+TAKE_PROFIT_PRICE=2100  # 止盈价格
+POST_ONLY=true  # 是否只挂单不吃单
+TIME_IN_FORCE=GTC  # 订单有效期：GTC(一直有效) 或 IOC(立即成交或取消)
+
+# 系统配置
+CHECK_INTERVAL=60  # 检查间隔(秒)
+LOG_LEVEL=INFO  # 日志级别：DEBUG, INFO, WARNING, ERROR, CRITICAL
+```
+
+## 使用说明
+
+1. 配置环境变量：
+   - 复制 `.env.example` 为 `.env`
+   - 填写您的 API 密钥和其他配置参数
+
+2. 运行机器人：
+   ```bash
+   python grid_trader.py
+   ```
+
+3. 监控运行状态：
+   - 程序会实时显示网格信息和订单状态
+   - 可以通过日志查看详细信息
+
+4. 安全退出：
+   - 按 Ctrl+C 可以安全退出程序
+   - 程序会自动取消所有未完成订单
+
+## 网格策略说明
+
+### 等差网格
+- 价格区间均匀分布
+- 适合价格波动较小的市场
+- 每个网格的收益相同
+
+### 等比网格
+- 价格区间按比例分布
+- 适合价格波动较大的市场
+- 每个网格的收益率相同
+
+## 风险提示
+
+1. 请确保理解网格交易的风险
+2. 建议先用小额资金测试
 3. 请妥善保管 API 密钥
-4. 建议先用小额资金测试
-5. 定期检查日志文件了解运行状态
+4. 建议设置合理的止盈止损价格
+5. 注意监控账户余额
 
-## 文件说明
+## 常见问题
 
-- `main.py`: 主程序入口
-- `backpack_exchange.py`: Backpack 交易所接口
-- `grid_bot.py`: 网格交易逻辑
-- `start_bot.bat`: Windows 启动脚本
-- `start_bot.sh`: Linux 启动脚本
-- `requirements.txt`: Python 包依赖
-- `.env`: 配置文件（需要自行创建）
-- `logs/`: 日志文件目录
+1. 如何修改网格参数？
+   - 直接修改 `.env` 文件中的相应参数
+   - 修改后需要重启程序
 
-## 更新日志
+2. 如何查看交易记录？
+   - 程序会实时显示订单状态
+   - 可以在 Backpack Exchange 官网查看详细记录
 
-### v1.0.0
-- 初始版本发布
-- 支持 ETH/USDC 现货网格交易
-- 自动环境配置
-- 支持 Windows 和 Linux 运行
-
-## 许可证
-
-MIT License 
+3. 如何处理程序异常退出？
+   - 程序会自动取消所有未完成订单
+   - 重新启动程序即可继续交易
