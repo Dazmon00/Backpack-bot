@@ -215,7 +215,7 @@ class GridTrader:
         """计算订单数量"""
         grid_investment = self.investment / self.grid_number
         amount = grid_investment / price
-        return max(round(amount, 3), self.min_order_size)
+        return max(round(amount, 2), self.min_order_size)
 
     def check_balance(self, side: str, amount: float, price: float) -> bool:
         """检查账户余额是否足够"""
